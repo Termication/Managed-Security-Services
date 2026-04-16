@@ -19,4 +19,8 @@ def create_app():
     app.register_blueprint(client_bp)
     app.register_blueprint(alert_bp)
 
+    @app.route('/')
+    def home():
+        return {"message": "MSS API is running 🚀"}
+
     return app
