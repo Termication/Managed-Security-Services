@@ -35,6 +35,12 @@ def setup_admin():
     return jsonify({"message": "Admin account created", "user": user.to_dict()}), 201
 
 
+@auth_bp.route("/auth/status", methods=["GET"])
+def auth_status():
+    has_admin = User.query.filter_by(role="admin").first() is not None
+    return jsonify({"has_admin": has_admin})
+
+
 @auth_bp.route("/auth/login", methods=["POST"])
 def login():
     data = request.get_json() or {}
