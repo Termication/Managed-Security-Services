@@ -12,6 +12,7 @@ env/
 # Environment and secrets
 .env
 .env.*
+!.env.example
 
 # Flask instance data and local databases
 instance/
