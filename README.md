@@ -1,138 +1,227 @@
-# Managed Security Services
+# 🔐 Managed Security Services (MSS) for SMEs
 
-A lean MVP for a subscription-based managed security service for SMEs. The current build includes:
+A lightweight, scalable backend system for delivering **Managed Security Services (MSS)** to small and medium-sized businesses (SMEs).
+This platform provides centralized monitoring, alert management, and incident response — designed for a **subscription-based cybersecurity service**.
 
-- a Flask backend
-- SQLite with SQLAlchemy models
-- JWT-based authentication for admin and client users
-- a simple web UI for login and dashboard access
-- client and alert APIs with role-based access control
+---
 
-## Current Features
+## 🚀 MVP Features
 
-- Admin bootstrap flow for the first account
-- Admin and client login with JWT
-- Role-protected routes for clients and alerts
-- Login page at `/login`
-- Dashboard page at `/dashboard`
-- Automatic local table creation on app startup
+* 🏢 Multi-tenant client management
+* 💻 Device tracking per client *(in progress)*
+* 🚨 Alert ingestion (simulated SIEM integration)
+* 🛠 Incident response handling *(coming soon)*
+* 🔐 Authentication (JWT) *(coming soon)*
+* 📊 Dashboard APIs *(coming soon)*
 
-## Project Structure
+---
 
-```text
-Managed Security Services/
-|-- .env.example
-|-- .gitignore
-|-- README.md
-|-- mss-backend/
-|   |-- run.py
-|   |-- app/
-|   |   |-- __init__.py
-|   |   |-- config.py
-|   |   |-- extensions.py
-|   |   |-- auth.py
-|   |   |-- models/
-|   |   |-- routes/
-|   |   |-- static/
-|   |   |-- templates/
+## 🧱 Tech Stack
+
+### Backend
+
+* Python
+* Flask
+* SQLAlchemy
+* Flask-JWT-Extended
+* Flask-CORS
+
+### Future Integrations
+
+* Microsoft Sentinel (SIEM)
+* Wazuh (Open-source SIEM)
+* Email alerting services (SendGrid, SMTP)
+
+---
+
+
+## ⚙️ Setup Instructions
+
+### 1. Clone the Repository
+
+```
+git clone <https://github.com/Termication/Managed-Security-Services>
+cd mss-backend
 ```
 
-## Environment Setup
+---
 
-Sensitive config has been moved out of source code.
+### 2. Create Virtual Environment
 
-1. Create a local `.env` file in the repo root.
-2. Copy the values from [.env.example](C:/Users/termi/OneDrive/Documents/Managed%20Security%20Services/.env.example:1).
-3. Replace them with your actual local settings.
-
-Example:
-
-```env
-SQLALCHEMY_DATABASE_URI=sqlite:///C:/Users/termi/OneDrive/Documents/Managed Security Services/mss-backend/instance/mss.db
-JWT_SECRET_KEY=put-a-long-random-secret-here
+```
+python -m venv venv
 ```
 
-Notes:
+Activate:
 
-- `.env` is ignored by git
-- `.env.example` is safe to commit
-- the app will not start unless `JWT_SECRET_KEY` is set
+**Windows**
 
-## Run The App
+```
+venv\Scripts\activate
+```
 
-From the project root:
+**Mac/Linux**
 
-```powershell
-cd "C:\Users\termi\OneDrive\Documents\Managed Security Services\mss-backend"
+```
+source venv/bin/activate
+```
+
+---
+
+### 3. Install Dependencies
+
+```
+pip install flask flask_sqlalchemy flask_jwt_extended flask_cors
+```
+
+---
+
+### 4. Initialize Database
+
+Run Python shell:
+
+```
+python
+```
+
+Then:
+
+```
+from app import create_app
+from app.extensions import db
+
+app = create_app()
+
+with app.app_context():
+    db.create_all()
+```
+
+---
+
+### 5. Run the Server
+
+```
 python run.py
 ```
 
-If `python` is not available in your shell, use your virtual environment Python or `py -3`.
+Server runs at:
 
-The default local app URL is:
-
-```text
+```
 http://127.0.0.1:5000
 ```
 
-## First Login Flow
+---
 
-1. Start the Flask server.
-2. Open [http://127.0.0.1:5000/login](http://127.0.0.1:5000/login).
-3. If no admin exists yet, the page will show the first-run admin setup form.
-4. Create the admin account.
-5. Sign in and continue to the dashboard.
+## 🧪 API Endpoints
 
-## Current Routes
+### ✅ Health Check
 
-### UI Routes
+```
+GET /
+```
 
-- `GET /login`
-- `GET /dashboard`
+Response:
 
-### Auth Routes
+```
+{
+  "message": "MSS API is running 🚀"
+}
+```
 
-- `GET /auth/status`
-- `POST /auth/setup-admin`
-- `POST /auth/login`
-- `GET /auth/me`
-- `POST /auth/client-users`
+---
 
-### Client Routes
+### 🏢 Create Client
 
-- `GET /clients`
-- `POST /clients`
+```
+POST /clients
+```
 
-### Alert Routes
+Body:
 
-- `GET /alerts`
-- `POST /alerts`
+```
+{
+  "name": "ABC Company",
+  "email": "admin@abc.com"
+}
+```
 
-## Role Behavior
+---
 
-- `admin` users can create and view all clients and alerts
-- `client` users can sign in and only see their own client record and alerts
+### 🚨 Create Alert
 
-## Tech Stack
+```
+POST /alerts
+```
 
-- Flask
-- Flask-CORS
-- Flask-JWT-Extended
-- Flask-SQLAlchemy
-- SQLite
-- HTML, CSS, and vanilla JavaScript for the current frontend
+Body:
 
-## Local Development Notes
+```
+{
+  "title": "Suspicious login detected",
+  "severity": "high",
+  "client_id": 1
+}
+```
 
-- SQLite data is stored locally and ignored by git
-- Flask instance data is ignored by git
-- local secret files are ignored by git
-- the current frontend is server-rendered through Flask templates
+---
 
-## Next Recommended Steps
+## 🧠 Architecture Overview
 
-- add admin forms on the dashboard for creating clients and client users
-- add alert creation and filtering in the UI
-- add device management
-- move from `db.create_all()` to proper migrations
-- add password reset and account management
+```
+Client Devices
+      ↓
+Endpoint Protection
+      ↓
+Cloud SIEM (future)
+      ↓
+Flask API (this project)
+      ↓
+Alerts & Dashboard
+```
+
+---
+
+## 💰 Business Model
+
+This platform is designed for **recurring revenue**:
+
+* Monthly subscription per client
+* Pricing per device or user
+* Tiered plans (Starter, Growth, Premium)
+
+---
+
+## 🔮 Roadmap
+
+* [ ] JWT Authentication (Admin & Client users)
+* [ ] Role-based access control
+* [ ] Device management endpoints
+* [ ] Incident response system
+* [ ] SIEM integration (Microsoft Sentinel / Wazuh)
+* [ ] Real-time alerts (WebSockets)
+* [ ] Reporting & analytics dashboard
+* [ ] POPIA compliance features
+
+---
+
+## ⚠️ Disclaimer
+
+This is an MVP (Minimum Viable Product) and is **not production-ready**.
+For production deployment:
+
+* Use Gunicorn or uWSGI
+* Add proper logging
+* Secure secrets (env variables)
+* Use PostgreSQL instead of SQLite
+
+---
+
+## 👨‍💻 Author
+
+Built as a scalable cybersecurity SaaS foundation.
+
+---
+
+## 📄 License
+
+MIT License
