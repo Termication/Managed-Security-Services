@@ -15,9 +15,11 @@ def create_app():
     CORS(app)
 
     # Import and register blueprints inside the factory to avoid circular imports.
+    from .routes.auth_routes import auth_bp
     from .routes.alert_routes import alert_bp
     from .routes.client_routes import client_bp
 
+    app.register_blueprint(auth_bp)
     app.register_blueprint(client_bp)
     app.register_blueprint(alert_bp)
 
@@ -25,6 +27,7 @@ def create_app():
         # Import models before create_all so SQLAlchemy can build the tables.
         from .models.alert import Alert
         from .models.client import Client
+        from .models.user import User
 
         db.create_all()
 
