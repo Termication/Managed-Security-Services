@@ -165,21 +165,6 @@ Body:
 
 ---
 
-## 🧠 Architecture Overview
-
-```
-Client Devices
-      ↓
-Endpoint Protection
-      ↓
-Cloud SIEM (future)
-      ↓
-Flask API (this project)
-      ↓
-Alerts & Dashboard
-```
-
----
 
 ## 💰 Business Model
 
