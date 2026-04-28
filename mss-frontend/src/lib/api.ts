@@ -66,6 +66,8 @@ export async function tryRefreshToken(): Promise<string | null> {
     window.localStorage.setItem("mss_access_token", data.access_token);
     return data.access_token;
   } catch {
+    // Refresh token is invalid or expired — remove it to prevent repeated attempts.
+    window.localStorage.removeItem("mss_refresh_token");
     return null;
   }
 }
@@ -81,13 +83,15 @@ export async function apiFetchAuth<T>(
   init?: RequestInit,
   onAuthFailure?: () => void,
 ): Promise<T> {
+  const mergedHeaders = { ...init?.headers, ...authHeaders(token) };
   try {
-    return await apiFetch<T>(path, { ...init, headers: authHeaders(token) });
+    return await apiFetch<T>(path, { ...init, headers: mergedHeaders });
   } catch (error) {
     if (error instanceof ApiError && error.status === 401) {
       const newToken = await tryRefreshToken();
       if (newToken) {
-        return apiFetch<T>(path, { ...init, headers: authHeaders(newToken) });
+        const retryHeaders = { ...init?.headers, ...authHeaders(newToken) };
+        return apiFetch<T>(path, { ...init, headers: retryHeaders });
       }
       onAuthFailure?.();
       throw error;

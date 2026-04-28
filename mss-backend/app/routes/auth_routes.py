@@ -34,8 +34,8 @@ def setup_admin():
     user = User(email=data["email"].strip().lower(), role="admin")
     try:
         user.set_password(data["password"])
-    except ValueError as exc:
-        return jsonify({"error": str(exc)}), 400
+    except ValueError:
+        return jsonify({"error": "Password must be at least 8 characters long."}), 400
 
     db.session.add(user)
     db.session.commit()
@@ -127,8 +127,8 @@ def create_client_user():
     user = User(email=email, role="client", client_id=client.id)
     try:
         user.set_password(data["password"])
-    except ValueError as exc:
-        return jsonify({"error": str(exc)}), 400
+    except ValueError:
+        return jsonify({"error": "Password must be at least 8 characters long."}), 400
 
     db.session.add(user)
     db.session.commit()
