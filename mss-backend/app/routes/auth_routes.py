@@ -1,5 +1,10 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import create_access_token, jwt_required
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    get_jwt_identity,
+    jwt_required,
+)
 
 from app.auth import current_user, role_required
 from app.extensions import db
@@ -27,7 +32,10 @@ def setup_admin():
         return validation_error
 
     user = User(email=data["email"].strip().lower(), role="admin")
-    user.set_password(data["password"])
+    try:
+        user.set_password(data["password"])
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
 
     db.session.add(user)
     db.session.commit()
@@ -56,12 +64,39 @@ def login():
     if not user.is_active:
         return jsonify({"error": "Account is inactive"}), 403
 
-    token = create_access_token(
+    additional_claims = {"role": user.role, "client_id": user.client_id}
+    access_token = create_access_token(
         identity=str(user.id),
-        additional_claims={"role": user.role, "client_id": user.client_id},
+        additional_claims=additional_claims,
+    )
+    refresh_token = create_refresh_token(
+        identity=str(user.id),
+        additional_claims=additional_claims,
     )
 
-    return jsonify({"access_token": token, "user": user.to_dict()})
+    return jsonify({
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "user": user.to_dict(),
+    })
+
+
+@auth_bp.route("/auth/refresh", methods=["POST"])
+@jwt_required(refresh=True)
+def refresh():
+    user_id = get_jwt_identity()
+    user = User.query.get(int(user_id)) if user_id else None
+
+    if not user or not user.is_active:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    additional_claims = {"role": user.role, "client_id": user.client_id}
+    access_token = create_access_token(
+        identity=str(user.id),
+        additional_claims=additional_claims,
+    )
+
+    return jsonify({"access_token": access_token})
 
 
 @auth_bp.route("/auth/me", methods=["GET"])
@@ -90,7 +125,10 @@ def create_client_user():
         return jsonify({"error": "User already exists"}), 409
 
     user = User(email=email, role="client", client_id=client.id)
-    user.set_password(data["password"])
+    try:
+        user.set_password(data["password"])
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
 
     db.session.add(user)
     db.session.commit()

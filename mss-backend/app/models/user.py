@@ -17,6 +17,8 @@ class User(db.Model):
     client = db.relationship("Client", back_populates="users")
 
     def set_password(self, password):
+        if len(password) < 8:
+            raise ValueError("Password must be at least 8 characters long.")
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):

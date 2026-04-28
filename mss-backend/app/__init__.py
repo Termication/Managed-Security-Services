@@ -11,7 +11,7 @@ def create_app():
 
     db.init_app(app)
     jwt.init_app(app)
-    CORS(app)
+    CORS(app, origins=app.config["CORS_ORIGINS"], supports_credentials=True)
 
     # Import and register blueprints inside the factory to avoid circular imports.
     from .routes.auth_routes import auth_bp

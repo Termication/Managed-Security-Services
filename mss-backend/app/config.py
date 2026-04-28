@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 
 
@@ -30,8 +31,14 @@ def configure_app(app):
     load_local_env()
 
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI", DEFAULT_DATABASE_URI)
+
     jwt_secret = os.getenv("JWT_SECRET_KEY")
     if not jwt_secret:
         raise RuntimeError("JWT_SECRET_KEY is not set. Add it to your environment or local .env file.")
 
     app.config["JWT_SECRET_KEY"] = jwt_secret
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
+
+    # Store CORS origin on the app config so the factory can use it.
+    app.config["CORS_ORIGINS"] = os.getenv("FRONTEND_URL", "http://localhost:3000")

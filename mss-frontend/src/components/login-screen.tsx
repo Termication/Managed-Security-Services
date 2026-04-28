@@ -20,6 +20,7 @@ type AuthUser = {
 
 type LoginResponse = {
   access_token: string;
+  refresh_token: string;
   user: AuthUser;
 };
 
@@ -28,8 +29,19 @@ type SetupResponse = {
   user: AuthUser;
 };
 
+const MIN_PASSWORD_LENGTH = 8;
+
 const initialLogin = { email: "", password: "" };
 const initialSetup = { email: "", password: "" };
+
+function setSessionCookie() {
+  // A non-sensitive presence indicator that Next.js middleware can read.
+  document.cookie = "mss_session=1; path=/; SameSite=Strict";
+}
+
+function clearSessionCookie() {
+  document.cookie = "mss_session=; path=/; max-age=0; SameSite=Strict";
+}
 
 export function LoginScreen() {
   const router = useRouter();
@@ -49,7 +61,9 @@ export function LoginScreen() {
 
   const saveSession = (payload: LoginResponse) => {
     window.localStorage.setItem("mss_access_token", payload.access_token);
+    window.localStorage.setItem("mss_refresh_token", payload.refresh_token);
     window.localStorage.setItem("mss_user", JSON.stringify(payload.user));
+    setSessionCookie();
   };
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
@@ -77,6 +91,15 @@ export function LoginScreen() {
 
   const handleSetup = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (setupForm.password.length < MIN_PASSWORD_LENGTH) {
+      setMessage({
+        tone: "error",
+        text: `Password must be at least ${MIN_PASSWORD_LENGTH} characters long.`,
+      });
+      return;
+    }
+
     setSubmitting(true);
     setMessage(null);
 
@@ -179,11 +202,12 @@ export function LoginScreen() {
                     className="rounded-2xl border border-white/10 bg-slate-900/90 px-4 py-3 text-white outline-none ring-0 transition focus:border-emerald-300"
                     type="password"
                     required
+                    minLength={MIN_PASSWORD_LENGTH}
                     value={setupForm.password}
                     onChange={(event) =>
                       setSetupForm((current) => ({ ...current, password: event.target.value }))
                     }
-                    placeholder="Choose a strong password"
+                    placeholder={`At least ${MIN_PASSWORD_LENGTH} characters`}
                   />
                 </label>
                 <button
@@ -241,3 +265,5 @@ export function LoginScreen() {
     </main>
   );
 }
+
+export { clearSessionCookie };

@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { apiFetch, authHeaders } from "@/lib/api";
+import { apiFetchAuth } from "@/lib/api";
+import { clearSessionCookie } from "@/components/login-screen";
 
 type User = {
   id: number;
@@ -55,25 +56,24 @@ export function DashboardScreen() {
       return;
     }
 
-    const headers = authHeaders(token);
+    const onAuthFailure = () => {
+      window.localStorage.removeItem("mss_access_token");
+      window.localStorage.removeItem("mss_refresh_token");
+      window.localStorage.removeItem("mss_user");
+      clearSessionCookie();
+      router.replace("/login");
+    };
 
     Promise.all([
-      apiFetch<{ user: User }>("/auth/me", { headers }),
-      apiFetch<{ clients: Client[] }>("/clients", { headers }),
-      apiFetch<{ alerts: Alert[] }>("/alerts", { headers }),
+      apiFetchAuth<{ user: User }>("/auth/me", token, undefined, onAuthFailure),
+      apiFetchAuth<{ clients: Client[] }>("/clients", token, undefined, onAuthFailure),
+      apiFetchAuth<{ alerts: Alert[] }>("/alerts", token, undefined, onAuthFailure),
     ])
       .then(([me, clients, alerts]) => {
         window.localStorage.setItem("mss_user", JSON.stringify(me.user));
         setState({ user: me.user, clients: clients.clients, alerts: alerts.alerts });
       })
       .catch((error: Error) => {
-        if (error.message.toLowerCase().includes("unauthorized")) {
-          window.localStorage.removeItem("mss_access_token");
-          window.localStorage.removeItem("mss_user");
-          router.replace("/login");
-          return;
-        }
-
         setMessage(error.message || "Failed to load dashboard data.");
       })
       .finally(() => setLoading(false));
@@ -81,7 +81,9 @@ export function DashboardScreen() {
 
   const logout = () => {
     window.localStorage.removeItem("mss_access_token");
+    window.localStorage.removeItem("mss_refresh_token");
     window.localStorage.removeItem("mss_user");
+    clearSessionCookie();
     router.push("/login");
   };
 
