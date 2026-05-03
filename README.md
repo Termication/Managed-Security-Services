@@ -8,11 +8,11 @@ This platform provides centralized monitoring, alert management, and incident re
 ## 🚀 MVP Features
 
 * 🏢 Multi-tenant client management
-* 💻 Device tracking per client *(in progress)*
+* 💻 Device tracking per client
 * 🚨 Alert ingestion (simulated SIEM integration)
-* 🛠 Incident response handling *(coming soon)*
-* 🔐 Authentication (JWT) *(coming soon)*
-* 📊 Dashboard APIs *(coming soon)*
+* 🛠 Incident response handling 
+* 🔐 Authentication (JWT)
+* 📊 Dashboard APIs
 
 ---
 
