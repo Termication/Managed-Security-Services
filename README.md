@@ -34,11 +34,6 @@ This platform provides centralized monitoring, alert management, and incident re
 This is an MVP (Minimum Viable Product) and is **not production-ready**.
 For production deployment:
 
-* Use Gunicorn or uWSGI
-* Add proper logging
-* Secure secrets (env variables)
-* Use PostgreSQL instead of SQLite
-
 ---
 
 ## 👨‍💻 Author
