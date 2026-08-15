@@ -3,7 +3,7 @@
 A lightweight, scalable backend system for delivering **Managed Security Services (MSS)** to small and medium-sized businesses (SMEs).
 This platform provides centralized monitoring, alert management, and incident response — designed for a **subscription-based cybersecurity service**.
 
----
+-----
 
 ## 🚀 MVP Features
 
